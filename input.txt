@@ -1,0 +1,453 @@
+geeksforgeeks
+
+Sign In
+Home
+Saved Videos
+Courses
+GBlog
+Puzzles
+What's New ?
+ Change Language
+
+NodeJS FS
+NodeJS Crypto
+NodeJS Process
+NodeJS Path
+NodeJS Buffer
+NodeJS Stream
+NodeJS OS
+NodeJS Util
+NodeJS URL
+NodeJS Zlib
+NodeJS V8
+NodeJS Tutorial
+JavaScript
+Web Technology
+
+
+Related Articles
+Write an Interview Experience
+Share Your Campus Experience
+How to use SSL/TLS with Node.js ?
+What is LTS releases of Node.js why should you care ?
+EventEmitter Object in Node.js
+What is spawn in Node JS ?
+What are Request and Cheerio in Node.js NPM ?
+How Node.js V8 runtime is different from what we have on chrome console ?
+How to handle syntax errors in Node.js ?
+How to detect AJAX request to normal request in Node.js ?
+Explain the Process Object in Node.js
+Getting error handler data from post request in AXIOS
+How to find a singular word that has a capital letter in Node.js ?
+How to convert tabular string to JSON using Node.js ?
+Difference between LTS and Stable version of Node.js
+What is V8 Templates ?
+Error: Warning: Accessing non-existent property ‘findOne’ of module exports inside circular dependency
+What is WebTorrent and how to use it in Node.js ?
+Is Node.js entirely based on a single-thread ?
+Chrome Dev Tools for Node.js
+What is the difference between returning a callback and just calling a callback ?
+What is Piping in Node.js ?
+Read
+Discuss
+Courses
+Piping in NodeJS is the process by which byte data from one stream is sent to another stream.
+
+What are streams?
+
+Streams in NodeJS are a sequence of bytes. When a program processes some data it needs to read all the data into memory and then process it and write out the data back into some location. However, this approach fails when there is a large amount of data to be processed. To overcome this problem streaming algorithms are used for processing the data in which the data is not read all at once instead it ‘flows’ into the program, is processed, and ‘flows’ out of the program. Here the data is processed in small chunks and the whole data is never held in memory at once. The data stream can be compared with the example of water flowing in a river where a large amount of water is transported by flowing through the river over time. Streaming algorithms are more memory efficient and faster. You can read this article to get a detailed guide on streams.
+
+What is piping?
+
+Piping in NodeJS is useful when we need to write some data coming from a source stream to another stream. In such a case we can use the piping algorithms provided by NodeJS instead of writing our own reading and writing logic. We basically pipe the read stream and write stream to one another. This can be compared with joining two water bodies using a pipe to transfer water.
+
+Let’s take an example on piping, suppose you want to write a server that serves some files. In this case, you will need to write code to handle the reading operation on the files and code to write the data to a network socket. But with the piping facility provided by NodeJS, you can easily connect the file stream to the network socket stream to send the data. There is a pipe() function in NodeJS to handle this operation which is provided with a stream object and accepts a stream object.
+
+Pipe function can be used to connect an input stream to an output stream or it can be included with a combination of streams to create a complex pipeline to execute a certain task.
+
+Make sure you have NodeJS installed on your computer. If not download it from here and then install it. All the modules used in this project are included by default in NodeJS.
+
+Approach 1: Connecting read stream write stream using pipe()
+
+Project Structure: Our project structure would be:
+
+index.js: main containing the code.
+input.txt: file from which data is read
+output.txt: file to which data is written
+
+ 
+
+The following modules are required in this approach:
+
+fs: file stream module used for creating and interacting with file streams
+Step 1: Create a file named input.txt and paste the following text into it. Create a file name output.txt and keep it empty.
+
+GeeksForGeeks is awesome.
+Step 2: Create a file index.js. and paste the following code into it.
+
+Javascript
+const fs = require("fs");
+const fs = require("fs");
+ 
+let rs = fs.createReadStream("./input.txt");
+let ws = fs.createWriteStream("./output.txt");
+ 
+function callback(msg) {
+    console.log(msg);
+}
+ 
+// pipeReadToWrite() accepts two streams a
+// readStream and s writeStream and a callback function.
+function pipeReadToWrite(readStream, writeStream, callback) {
+    // handles any error occurred in the stream
+    function handleError(err) {
+        // close the streams and call callback
+        readStream.close();
+        writeStream.close();
+        callback(err);
+    }
+ 
+    readStream
+        .on("error", handleError)  
+        .pipe(writeStream)
+        .on("error", handleError)
+        .on("finish", callback);
+}
+ 
+pipeReadToWrite(rs, ws, callback);
+let rs = fs.createReadStream("./input.txt");
+let ws = fs.createWriteStream("./output.txt");
+ 
+function callback(msg) {
+    console.log(msg);
+}
+ 
+// pipeReadToWrite() accepts two streams a
+// readStream and s writeStream and a callback function.
+function pipeReadToWrite(readStream, writeStream, callback) {
+// handles any error occurred in the stream
+    function handleError(err) {
+        // close the streams and call callback
+        readStream.close();
+        writeStream.close();
+        callback(err);
+    }
+ 
+    readStream
+                .on("error", handleError)
+                .pipe(writeStream)
+                .on("error", handleError)
+                .on("finish", callback);
+}
+ 
+pipeReadToWrite(rs,ws,callback);
+Code explanation:
+
+Include the fs (file stream) module which is used to create and interact with file streams. Create a read stream and connect it to input.txt and a write stream and connect it to output.txt
+pipeReadToWrite() function accepts a read stream and a write stream.
+handleError() is a callback function that handles any error that occurs in reading or writing the stream.
+execute the pipeReadToWrite() function with the required arguments.
+Step 3: Execute the index.js file by writing the command in the command line
+
+node index.js
+Output: Open output.txt and you will see the following output displayed in it.
+
+GeeksForGeeks is awesome.
+Approach 2: Connecting more than two streams to create a complex workflow.
+
+Project Structure: Our project structure would be:
+
+index.js: main containing the code.
+input.txt: file from which is to be compressed.
+
+ 
+
+In this example, we connect multiple streams to compress a file.
+
+The following modules are required in this approach.
+
+fs: file stream module used for creating and interacting with file streams.
+zlib: provides various methods to compress files.
+Step 1: Create a file named input.txt and paste the following text into it. Create a file name output.txt and keep it empty.
+
+GeeksForGeeks is awesome.
+Step 2: Create a file index.js. and paste the following code into it.
+
+Javascript
+const fs = require("fs");
+const zlib = require("zlib");
+ 
+// gzip() function accepts a filename
+// to be compressed and a callback function
+function gzip(filename, callback) {
+    // Create the streams
+    let source = fs.createReadStream(filename);
+    let destination = fs.createWriteStream(filename + ".gz");
+    let gzipper = zlib.createGzip();
+     
+    // Set up the pipeline
+    source
+        .on("error", callback)
+        .pipe(gzipper)
+        .pipe(destination)
+        .on("error", callback)
+        .on("finish", callback);
+}
+ 
+gzip("./input.txt", (msg) => {
+    console.log(msg);
+});
+Code explanation:
+
+Include all the required modules
+The function gzip() accepts a path to a file and a callback function. It compresses the file specified in the path and executes the callback function after successfully compressing the file.
+Execute the gzip() function. 
+Step 3: Execute the index.js file. Go to the command line and execute the command given below:
+
+node index.js
+Output: You will see a new file named input.txt.gz is created. This is the compressed version of input.txt.
+
+
+input.txt.gz file is created
+
+
+Last Updated : 03 Feb, 2023
+
+1
+
+Similar Reads
+Similar read thumbnail
+How to do Piping/Streaming of JavaScript objects in Node.js ?
+Similar read thumbnail
+Node.js Connect Mysql with Node app
+Similar read thumbnail
+Node.js Automatic restart Node.js server with nodemon
+Similar read thumbnail
+How to resolve 'node' is not recognized as an internal or external command error after installing Node.js ?
+Similar read thumbnail
+Top 3 Best Packages Of Node.js that you should try being a Node.js Developer
+Similar read thumbnail
+How to do pagination Node.js with MySQL ?
+Similar read thumbnail
+How to resolve unhandled exceptions in Node.js ?
+Similar read thumbnail
+Node.js String Decoder Complete Reference
+Similar read thumbnail
+Node.js urlObject.hash API
+Similar read thumbnail
+Node.js URLSearchParams.has() Method
+Related Tutorials
+Similar read thumbnail
+Spring MVC Tutorial
+Similar read thumbnail
+Spring Boot Tutorial
+Similar read thumbnail
+Java 8 Features - Complete Tutorial
+Similar read thumbnail
+Onsen UI
+Similar read thumbnail
+React Material UI
+Previous
+Next
+Article Contributed By :
+M
+
+moonpatel2003
+moonpatel2003
+Vote for difficulty
+Easy
+Normal
+Medium
+Hard
+Expert
+Improved By :
+surinderdawra388
+Article Tags :
+NodeJS-Questions
+Picked
+Technical Scripter 2022
+Node.js
+Technical Scripter
+Web Technologies
+Improve Article
+Report Issue
+Recently Published
+article-card
+Top 10 Tools That Every Java Developer Should Know
+Read
+article-card
+Introducing WhatsApp Channels: New Feature [2023]
+Read
+article-card
+Top Engineering Colleges in Bangalore 2023
+Read
+article-card
+Best Internet Security Suites to Protect your Devices
+Read
+article-card
+Best Courses to Choose After B.Com in 2023
+Read
+article-card
+How to Upgrade Pip and Python on Windows, Linux, and MacOS?
+Read
+article-card
+Norton 360 : Your Ultimate Defense Against Threats
+Read
+article-card
+AVG Antivirus: Your Ultimate Defense Against Viruses and Malware
+Read
+article-card
+Why to Choose Java For Backend Development?
+Read
+geeksforgeeks-footer-logo
+A-143, 9th Floor, Sovereign Corporate Tower, Sector-136, Noida, Uttar Pradesh - 201305
+feedback@geeksforgeeks.org
+GFG App on Play Store
+GFG App on App Store
+Company
+About Us
+Legal
+Careers
+In Media
+Contact Us
+Advertise with us
+Campus Training Program
+Explore
+Job-A-Thon Hiring Challenge
+Hack-A-Thon
+GfG Weekly Contest
+Offline Classes (Delhi/NCR)
+DSA in JAVA/C++
+Master System Design
+Master CP
+Languages
+Python
+Java
+C++
+PHP
+GoLang
+SQL
+R Language
+Android Tutorial
+DSA Concepts
+Data Structures
+Arrays
+Strings
+Linked List
+Algorithms
+Searching
+Sorting
+Mathematical
+Dynamic Programming
+DSA Roadmaps
+DSA for Beginners
+Basic DSA Coding Problems
+Complete Roadmap To Learn DSA
+DSA for FrontEnd Developers
+DSA with JavaScript
+Top 100 DSA Interview Problems
+All Cheat Sheets
+DSA Roadmap by Sandeep Jain
+Web Development
+HTML
+CSS
+JavaScript
+Bootstrap
+ReactJS
+AngularJS
+NodeJS
+Express.js
+Lodash
+Computer Science
+GATE CS Notes
+Operating Systems
+Computer Network
+Database Management System
+Software Engineering
+Digital Logic Design
+Engineering Maths
+Python
+Python Programming Examples
+Django Tutorial
+Python Projects
+Python Tkinter
+OpenCV Python Tutorial
+Python Interview Question
+Data Science & ML
+Data Science With Python
+Data Science For Beginner
+Machine Learning Tutorial
+Maths For Machine Learning
+Pandas Tutorial
+NumPy Tutorial
+NLP Tutorial
+Deep Learning Tutorial
+DevOps
+Git
+AWS
+Docker
+Kubernetes
+Azure
+GCP
+Competitive Programming
+Top DSA for CP
+Top 50 Tree Problems
+Top 50 Graph Problems
+Top 50 Array Problems
+Top 50 String Problems
+Top 50 DP Problems
+Top 15 Websites for CP
+System Design
+What is System Design
+Monolithic and Distributed SD
+Scalability in SD
+Databases in SD
+High Level Design or HLD
+Low Level Design or LLD
+Top SD Interview Questions
+Interview Corner
+Company Wise Preparation
+Preparation for SDE
+Experienced Interviews
+Internship Interviews
+Competitive Programming
+Aptitude Preparation
+GfG School
+CBSE Notes for Class 8
+CBSE Notes for Class 9
+CBSE Notes for Class 10
+CBSE Notes for Class 11
+CBSE Notes for Class 12
+English Grammar
+Commerce
+Accountancy
+Business Studies
+Economics
+Management
+Income Tax
+Finance
+Statistics for Economics
+UPSC
+Polity Notes
+Geography Notes
+History Notes
+Science and Technology Notes
+Economics Notes
+Important Topics in Ethics
+UPSC Previous Year Papers
+SSC/ BANKING
+SSC CGL Syllabus
+SBI PO Syllabus
+SBI Clerk Syllabus
+IBPS PO Syllabus
+IBPS Clerk Syllabus
+Aptitude Questions
+SSC CGL Practice Papers
+Write & Earn
+Write an Article
+Improve an Article
+Pick Topics to Write
+Write Interview Experience
+Internships
+@GeeksforGeeks, Sanchhaya Education Private Limited, All rights reserved
+Lightbox
